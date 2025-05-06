@@ -31,11 +31,12 @@ The optimization problem uses a centroidal dynamics model, with the following de
 - States: Centroidal momentum `h_com`, Generalized coordinates `q`
 - Inputs: Joint velocities `v_j`, Ground reaction forces `forces`
 
-Importantly, 4 ground reaction force frames are defined *per foot* (at each corner). Furthermore, one frame is defined at the center of each foot, to formulate the contact/swing constraints.
+Importantly, 4 ground reaction force frames are defined *per foot* (at each corner). Furthermore, one frame is defined at the center of each foot, to formulate the velocity constraints during contact and swing.
 
 
 ## P&S Task
 
-1. Read the PDF `nao-mpc.pdf`
-2. Implement the TODOs in `dynamics.py` and `optimization.py`
-3. Tune the weights in `optimization.py` and play with the commands/parameters (nodes, dt, etc.)
+1. Read the PDF `nao-mpc.pdf`.
+2. Implement the TODOs in `dynamics.py` and `optimization.py`.
+3. To help debug, run `debug_fatrop.py`, which displays the constraint Jacobian of the optimization. You can also set `debug=True` in the scripts to print the solutions for `h_com, q, v_j, forces, foot_vel`. 
+4. Once the MPC works, tune the weights in `optimization.py` and play with the commands/parameters (nodes, dt, etc.).
