@@ -120,7 +120,7 @@ class Optimization:
 
         return obj
 
-    def setup_constraints(self, mu=0.7):
+    def setup_constraints(self):
         # Initial state
         self.opti.subject_to(self.DX_opt[0] == [0] * self.ndx_opt)
 
@@ -156,6 +156,7 @@ class Optimization:
                 f_foot = forces[idx * 3 : (idx + 1) * 3]
 
                 # TODO: Contact and swing constraints
+                mu = 0.7 # friction coefficient
 
                 # TODO END
 
@@ -174,7 +175,7 @@ class Optimization:
                 vel_bezier = self.gait_sequence.get_bezier_vel(bezier_phase)
 
                 # TODO: Contact and swing constraints
-                # Tipp: Think about both linear and angular velocity
+                # Hint: Think about both linear and angular velocity
 
                 # TODO END
 

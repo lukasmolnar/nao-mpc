@@ -32,3 +32,10 @@ The optimization problem uses a centroidal dynamics model, with the following de
 - Inputs: Joint velocities `v_j`, Ground reaction forces `forces`
 
 Importantly, 4 ground reaction force frames are defined *per foot* (at each corner). Furthermore, one frame is defined at the center of each foot, to formulate the contact/swing constraints.
+
+
+## P&S Task
+
+1. Read the PDF `nao-mpc.pdf`
+2. Implement the TODOs in `dynamics.py` and `optimization.py`
+3. Tune the weights in `optimization.py` and play with the commands/parameters (nodes, dt, etc.)
