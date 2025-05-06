@@ -173,15 +173,26 @@ class Optimization:
                 vel_diff = vel_lin_z - vel_bezier
                 self.opti.subject_to(in_contact * vel_lin_z + (1 - in_contact) * vel_diff == 0)
 
-                # Angular velocity: Zero in contact AND in swing
-                self.opti.subject_to(vel_ang == [0] * 3)
+                # Angular velocity x/y: Zero in contact AND in swing
+                vel_ang_xy = vel_ang[:2]
+                self.opti.subject_to(vel_ang_xy == [0] * 2)
 
-            # Minimum distance between foot centers
-            min_dist = 0.09
-            l_center = self.dyn.get_frame_position(self.foot_center_frames[0])(q)
-            r_center = self.dyn.get_frame_position(self.foot_center_frames[1])(q)
-            dist = ca.sqrt(ca.sumsqr(l_center - r_center))  # euclidean distance
-            self.opti.subject_to(dist >= min_dist)
+                # Angular velocity z: Zero in contact, unconstrained in swing
+                vel_ang_z = vel_ang[2]
+                self.opti.subject_to(in_contact * vel_ang_z == 0)
+
+            # Minimum distance between feet
+            min_dist = 0.03
+            l_heel_in = self.dyn.get_frame_position(self.foot_force_frames[0])(q)
+            l_toe_in = self.dyn.get_frame_position(self.foot_force_frames[2])(q)
+            r_heel_in = self.dyn.get_frame_position(self.foot_force_frames[4])(q)
+            r_toe_in = self.dyn.get_frame_position(self.foot_force_frames[6])(q)
+            heel_dist = l_heel_in - r_heel_in
+            toe_dist = l_toe_in - r_toe_in
+            heel_dist_xy = ca.sqrt(ca.sumsqr(heel_dist[:2]))
+            toe_dist_xy = ca.sqrt(ca.sumsqr(toe_dist[:2]))
+            self.opti.subject_to(heel_dist_xy >= min_dist)
+            self.opti.subject_to(toe_dist_xy >= min_dist)
 
             # Warm start
             self.opti.set_value(self.n_contacts, self.gait_sequence.n_contacts)
@@ -251,7 +262,7 @@ class Optimization:
             "debug": True,
         }
         opts["fatrop"] = {
-            "print_level": 0,
+            "print_level": 1,
             "tol": 1e-3,
             "mu_init": 1e-4,
             "warm_start_init_point": True,
