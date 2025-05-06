@@ -21,7 +21,7 @@ step_height = 0.02
 mpc_loops = 100
 
 # Print debug info
-debug = False
+debug = False  # TODO: Change to True to analyze the solution
 
 
 def mpc_loop(opti, nao):
@@ -93,7 +93,7 @@ def main():
             print("left foot vel: ", left_vel)
             print("right foot vel: ", right_vel)
 
-    # Visualize
+    # Visualize the solution
     nao.robot.initViewer()
     nao.robot.loadViewerModel("pinocchio")
     for _ in range(50):

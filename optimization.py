@@ -76,6 +76,8 @@ class Optimization:
         self.u_des = ca.vertcat([0] * self.nj, self.f_des)  # zero velocities
 
     def setup_weights(self):
+        # TODO: Tune weights once MPC is working
+
         # State weights
         Q_diag = np.concatenate((
             [1000] * 6,     # CoM
@@ -96,21 +98,25 @@ class Optimization:
         self.R = np.diag(R_diag)
 
     def setup_objective(self):
-        # Quadratic cost function
+        # Weight matrices
+        Q = self.Q
+        R = self.R
+
+        # Objective
         obj = 0
         for i in range(self.nodes):
-            # Track desired state and input
+            # Track self.dx_des and self.u_des
             dx = self.DX_opt[i]
             u = self.U_opt[i]
-            err_dx = dx - self.dx_des
-            err_u = u - self.u_des
-            obj += err_dx.T @ self.Q @ err_dx
-            obj += err_u.T @ self.R @ err_u
 
-        # Final state
-        dx = self.DX_opt[self.nodes]
-        err_dx = dx - self.dx_des
-        obj += err_dx.T @ self.Q @ err_dx
+            # TODO: Add quadratic stage cost to obj
+            # Hint: Quadratic error can be computed with: err.T @ Q @ err
+
+            # TODO END
+
+        # TODO: Add quadratic terminal cost to obj
+
+        # TODO END
 
         return obj
 
@@ -121,67 +127,66 @@ class Optimization:
         for i in range(self.nodes):
             # Gather all state and input info
             dx = self.DX_opt[i]
-            dh = dx[:6]  # delta h
-            dq = dx[6:]  # delta q, not v
-            q = self.get_q(i)
-            v = self.get_v(i)
+            dh = dx[:6]  # delta from initial state
+            dq = dx[6:]  # delta from initial state
+            q = self.get_q(i)  # absolute
+            v = self.get_v(i)  # absolute
             forces = self.get_forces(i)
 
             # Dynamics constraint
             dx_next = self.DX_opt[i+1]
-            dh_next = dx_next[:6]
-            dq_next = dx_next[6:]
+            dh_next = dx_next[:6]  # delta from initial state
+            dq_next = dx_next[6:]  # delta from initial state
+
             h_dot = self.dyn.com_dynamics()(q, forces)
-            self.opti.subject_to(dh_next == dh + h_dot * self.dt)
-            self.opti.subject_to(dq_next == dq + v * self.dt)
 
-            # Contact constraints (foot force frames)
+            # TODO: Dynamics constraint: x_dot = f(x, u)
+            # Hint: First make sure all functions in dynamics.py are correct
+            # Hint: Then add constraints for dh and dq separately
+
+            # TODO END
+
+            # Contact/swing constraints: Foot force frames
             for idx, frame in enumerate(self.foot_force_frames):
-                f_foot = forces[idx * 3 : (idx + 1) * 3]
-
                 # Get contact info
                 contact_idx = ca.if_else(idx < 4, 0, 1)  # first 4 contacts: left foot, then right foot
                 in_contact = self.contact_schedule[contact_idx, i]
 
-                # Friction cone
-                f_normal = f_foot[2]
-                f_tangent_square = f_foot[0]**2 + f_foot[1]**2
-                self.opti.subject_to(in_contact * f_normal >= 0)
-                self.opti.subject_to(in_contact * mu**2 * f_normal**2 >= in_contact * f_tangent_square)
+                # Contact force at each foot corner
+                f_foot = forces[idx * 3 : (idx + 1) * 3]
 
-                # Zero end-effector force
-                self.opti.subject_to((1 - in_contact) * f_foot == [0] * 3)
+                # TODO: Contact and swing constraints
 
-            # Swing constraints (foot center frames)
+                # TODO END
+
+            # Contact/swing constraints: Foot center frames
             for idx, frame in enumerate(self.foot_center_frames):
                 # Get contact and swing info
                 in_contact = self.contact_schedule[idx, i]
                 bezier_phase = self.bezier_schedule[idx, i]
 
-                # Get velocity (linear + angular)
+                # Linear and angular velocity of the foot center
                 vel = self.dyn.get_frame_velocity(frame)(q, v)
                 vel_lin = vel[:3]
                 vel_ang = vel[3:6]
 
-                # Linear velocity x/y: Zero in contact, unconstrained in swing
-                vel_lin_xy = vel_lin[:2]
-                self.opti.subject_to(in_contact * vel_lin_xy == [0] * 2)
-
-                # Linear velocity z: Zero in contact, track bezier in swing
-                vel_lin_z = vel_lin[2]
+                # Bezier curve velocity
                 vel_bezier = self.gait_sequence.get_bezier_vel(bezier_phase)
-                vel_diff = vel_lin_z - vel_bezier
-                self.opti.subject_to(in_contact * vel_lin_z + (1 - in_contact) * vel_diff == 0)
 
-                # Angular velocity: Zero in contact AND in swing
-                self.opti.subject_to(vel_ang == [0] * 3)
+                # TODO: Contact and swing constraints
+                # Tipp: Think about both linear and angular velocity
+
+                # TODO END
 
             # Minimum distance between foot centers
             min_dist = 0.09
             l_center = self.dyn.get_frame_position(self.foot_center_frames[0])(q)
             r_center = self.dyn.get_frame_position(self.foot_center_frames[1])(q)
             dist = ca.sqrt(ca.sumsqr(l_center - r_center))  # euclidean distance
-            self.opti.subject_to(dist >= min_dist)
+
+            # TODO: Add minimum distance constraint, and play with the value/implementation
+
+            # TODO END
 
             # Warm start
             self.opti.set_value(self.n_contacts, self.gait_sequence.n_contacts)
@@ -251,7 +256,7 @@ class Optimization:
             "debug": True,
         }
         opts["fatrop"] = {
-            "print_level": 0,
+            "print_level": 1,
             "tol": 1e-3,
             "mu_init": 1e-4,
             "warm_start_init_point": True,

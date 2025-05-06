@@ -18,7 +18,7 @@ base_vel_des = np.array([0.2, 0, 0, 0, 0, 0])  # linear + angular
 step_height = 0.02
 
 # Print debug info
-debug = True
+debug = False  # TODO: Change to True to analyze the solution
 
 
 def main():
@@ -67,7 +67,7 @@ def main():
             print("left foot vel: ", left_vel)
             print("right foot vel: ", right_vel)
 
-    # Visualize
+    # Visualize the solution
     nao.robot.initViewer()
     nao.robot.loadViewerModel("pinocchio")
     for _ in range(50):

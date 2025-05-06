@@ -71,15 +71,25 @@ class Dynamics:
         cpin.centerOfMass(self.model, self.data)
         cpin.updateFramePlacements(self.model, self.data)
 
-        # COM Dynamics
-        g = np.array([0, 0, -9.81 * self.mass])
-        dp_com = sum(foot_forces) + g
-        dl_com = ca.SX.zeros(3)
-        r_com = self.data.com[0]
+        # Compute the sum of all forces (this is a 3D vector)
+        forces_sum = sum(foot_forces)
+
+        # Centroidal Dynamics
+        r_com = self.data.com[0]  # 3D center of mass postion
+        dp_com = ca.SX.zeros(3)  # linear momentum rate of change
+        dl_com = ca.SX.zeros(3)  # angular momentum rate of change
+
+        # TODO: Compute dp_com
+
+        # TODO END
+
         for idx, frame in enumerate(self.foot_force_frames):
-            r_foot = self.data.oMf[frame].translation
-            r_com_foot = r_foot - r_com
-            dl_com += ca.cross(r_com_foot, foot_forces[idx])
+            r_foot = self.data.oMf[frame].translation  # 3D foot force position
+
+            # TODO: Compute dl_com
+            # Hint: Use ca.cross() for the cross product
+
+            # TODO END
 
         h_dot = ca.vertcat(dp_com, dl_com) / self.mass  # scale h by mass
 
@@ -93,12 +103,15 @@ class Dynamics:
         # Pinocchio terms
         cpin.forwardKinematics(self.model, self.data, q)
         A = cpin.computeCentroidalMap(self.model, self.data, q)
+        h_scaled = h * self.mass  # scale h by mass
 
-        # Base velocity dynamics
-        A_b = A[:, :6]
-        A_j = A[:, 6:]
-        A_b_inv = ca.inv(A_b)
-        v_b = A_b_inv @ (h * self.mass - A_j @ v_j)  # scale h by mass
+        # TODO: Compute the base velocity v_b
+        # Hint: Think about the dimensions of A
+        # Hint: Use ca.inv() for the matrix inverse
+        # Hint: Use the scaled COM momentum h_scaled
+        v_b = ca.SX.zeros(6)
+
+        # TODO END
 
         return ca.Function("base_vel", [h, q, v_j], [v_b], ["h", "q", "v_j"], ["v_b"])
     
