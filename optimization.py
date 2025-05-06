@@ -179,12 +179,16 @@ class Optimization:
 
                 # TODO END
 
-            # Minimum distance between foot centers
-            min_dist = 0.09
-            l_center = self.dyn.get_frame_position(self.foot_center_frames[0])(q)
-            r_center = self.dyn.get_frame_position(self.foot_center_frames[1])(q)
-            dist = ca.sqrt(ca.sumsqr(l_center - r_center))  # euclidean distance
-
+            # Minimum distance between feet
+            l_heel_in = self.dyn.get_frame_position(self.foot_force_frames[0])(q)
+            l_toe_in = self.dyn.get_frame_position(self.foot_force_frames[2])(q)
+            r_heel_in = self.dyn.get_frame_position(self.foot_force_frames[4])(q)
+            r_toe_in = self.dyn.get_frame_position(self.foot_force_frames[6])(q)
+            heel_dist = l_heel_in - r_heel_in
+            toe_dist = l_toe_in - r_toe_in
+            heel_dist_xy = ca.sqrt(ca.sumsqr(heel_dist[:2]))
+            toe_dist_xy = ca.sqrt(ca.sumsqr(toe_dist[:2]))
+            min_dist = 0.03
             # TODO: Add minimum distance constraint, and play with the value/implementation
 
             # TODO END

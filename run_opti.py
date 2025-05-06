@@ -9,9 +9,9 @@ from optimization import Optimization
 # Parameters
 nao = NAO()
 gait_type = "walk"
-gait_nodes = 30
-nodes = 15
-dt = 0.02  # seconds
+gait_nodes = 20
+nodes = 12
+dt = 0.025  # seconds
 
 # User command
 base_vel_des = np.array([0.2, 0, 0, 0, 0, 0])  # linear + angular
