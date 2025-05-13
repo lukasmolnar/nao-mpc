@@ -18,7 +18,10 @@ base_vel_des = np.array([0.2, 0, 0, 0, 0, 0])  # linear + angular
 step_height = 0.03
 
 # MPC loops
-mpc_loops = 100
+mpc_loops = 50
+
+# Solver
+solver = "ipopt"  # "fatrop" is faster but doesn't work on windows!
 
 # Print debug info
 debug = False
@@ -29,7 +32,7 @@ def mpc_loop(opti, nao):
     solve_times = []
 
     # Initialize solver
-    opti.init_solver(solver="fatrop")
+    opti.init_solver(solver=solver)
 
     for k in range(mpc_loops):
         # Update params

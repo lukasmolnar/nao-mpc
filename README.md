@@ -21,9 +21,8 @@ python run_opti.py
 Run the MPC in closed loop with:
 
 ```bash
-python run_opti.py
+python run_mpc.py
 ```
-
 
 ## Optimization Problem
 
@@ -32,3 +31,9 @@ The optimization problem uses a centroidal dynamics model, with the following de
 - Inputs: Joint velocities `v_j`, Ground reaction forces `forces`
 
 Importantly, 4 ground reaction force frames are defined *per foot* (at each corner). Furthermore, one frame is defined at the center of each foot, to formulate the contact/swing constraints.
+
+## Solver
+
+Within the run scripts choose:
+- "fatrop": Linux and Mac (better performance)
+- "ipopt": Windows

@@ -17,8 +17,11 @@ dt = 0.025  # seconds
 base_vel_des = np.array([0.2, 0, 0, 0, 0, 0])  # linear + angular
 step_height = 0.03
 
+# Solver
+solver = "ipopt"  # "fatrop" is faster but doesn't work on windows!
+
 # Print debug info
-debug = True
+debug = False
 
 
 def main():
@@ -36,7 +39,7 @@ def main():
     x_init = np.concatenate((np.zeros(6), nao.q0))
     opti.update_initial_state(x_init)
     opti.update_contact_schedule(shift_idx=0)
-    opti.init_solver(solver="fatrop")
+    opti.init_solver(solver=solver)
     opti.solve(retract_all=True)
 
     # Debug
