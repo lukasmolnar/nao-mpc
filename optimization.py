@@ -255,19 +255,29 @@ class Optimization:
                 self.opti.set_initial(self.U_opt[i], self.U_prev[i+1])
 
     def init_solver(self, solver="fatrop"):
-        opts = {
-            "expand": True,
-            "structure_detection": "auto",
-            "debug": True,
-        }
-        opts["fatrop"] = {
-            "print_level": 1,
-            "tol": 1e-3,
-            "mu_init": 1e-4,
-            "warm_start_init_point": True,
-            "warm_start_mult_bound_push": 1e-7,
-            "bound_push": 1e-7,
-        }
+        if solver == "fatrop":
+            opts = {
+                "expand": True,
+                "structure_detection": "auto",
+                "debug": True,
+            }
+            opts["fatrop"] = {
+                "print_level": 1,
+                "tol": 1e-3,
+                "mu_init": 1e-4,
+                "warm_start_init_point": True,
+                "warm_start_mult_bound_push": 1e-7,
+                "bound_push": 1e-7,
+            }
+        elif solver == "ipopt":
+            opts = {}
+            opts["ipopt"] = {
+                "print_level": 1,
+                "tol": 1e-3,
+            }
+        else:
+            raise ValueError("Unknown solver: ", solver)
+
         self.opti.solver(solver, opts)
 
     def solve(self, retract_all=True):
